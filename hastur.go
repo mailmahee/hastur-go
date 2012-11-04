@@ -43,6 +43,23 @@ var intervalToDuration = map[Interval]time.Duration{
 	Day:      24 * time.Hour,
 }
 
+func TimeFull(callback func(), name string, timestamp time.Time, labels map[string]interface{}) {
+	start := time.Now()
+	callback()
+	end := time.Now()
+	GaugeFull(name, end.Sub(start).Seconds(), timestamp, labels)
+}
+
+func Time(callback func(), name string) {
+	TimeFull(callback, name, time.Now(), make(map[string]interface{}))
+}
+
+// Time until the current function returns. Call with defer.
+func TimeCurrent(name string, start time.Time) {
+	end := time.Now()
+	Gauge(name, end.Sub(start).Seconds())
+}
+
 func Every(interval Interval, callback func()) {
 	duration, ok := intervalToDuration[interval]
 	if !ok {
@@ -270,21 +287,4 @@ func HeartbeatFull(name string, value, timeout float64, timestamp time.Time, lab
 
 func Heartbeat(name string) {
 	HeartbeatFull(name, 0, 0, time.Now(), make(map[string]interface{}))
-}
-
-func TimeFull(callback func(), name string, timestamp time.Time, labels map[string]interface{}) {
-	start := time.Now()
-	callback()
-	end := time.Now()
-	GaugeFull(name, end.Sub(start).Seconds(), timestamp, labels)
-}
-
-func Time(callback func(), name string) {
-	TimeFull(callback, name, time.Now(), make(map[string]interface{}))
-}
-
-// Time until the current function returns. Call with defer.
-func TimeCurrent(name string, start time.Time) {
-	end := time.Now()
-	Gauge(name, end.Sub(start).Seconds())
 }
