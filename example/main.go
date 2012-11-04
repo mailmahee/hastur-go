@@ -6,7 +6,10 @@ import (
 )
 
 func main() {
-	badLabel := make(map[string]interface{})
-	badLabel["foo"] = make(chan bool)
-	hastur.CounterFull("foo", 1, time.Now(), badLabel)
+	i := 0
+	hastur.Every(hastur.FiveSecs, func() {
+		i++
+		hastur.Counter("foo", i)
+	})
+	time.Sleep(20 * time.Second)
 }

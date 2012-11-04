@@ -18,16 +18,48 @@ var (
 	recurringSend = false
 )
 
-func init() {
-	establishConn()
-}
-
 func establishConn() {
 	var err error
 	conn, err = net.Dial("udp", fmt.Sprintf("%s:%d", UdpAddress, UdpPort))
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Interval int
+
+const (
+	FiveSecs Interval = iota
+	Minute
+	Hour
+	Day
+)
+
+var intervalToDuration = map[Interval]time.Duration{
+	FiveSecs: 5 * time.Second,
+	Minute: time.Minute,
+	Hour: time.Hour,
+	Day: 24 * time.Hour,
+}
+
+func Every(interval Interval, callback func()) {
+	duration, ok := intervalToDuration[interval]
+	if !ok {
+		panic(fmt.Sprintf("Every called with bad interval."))
+	}
+	go func() {
+		ticker := time.NewTicker(duration)
+		for {
+			select {
+			case <-ticker.C:
+				callback()
+			}
+		}
+	}()
+}
+
+func init() {
+	establishConn()
 }
 
 // Send an arbitrary message to the udp destination.

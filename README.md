@@ -5,8 +5,6 @@ A Go client for Hastur.
 * Main methods:
 	* InfoProcess?
 	* InfoAgent?
-* Helper methods
-	* Every
 * Background heartbeat
 * Docs
 * Tests
