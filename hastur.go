@@ -9,11 +9,12 @@ import (
 )
 
 var (
-	Version    = "0.0.1"
-	UdpAddress = "127.0.0.1"
-	UdpPort    = 8125
-	appName    string
-	conn       net.Conn
+	Version       = "0.0.1"
+	UdpAddress    = "127.0.0.1"
+	UdpPort       = 8125
+	appName       string
+	conn          net.Conn
+	defaultLabels = make(map[string]interface{})
 )
 
 func init() {
@@ -52,6 +53,40 @@ func SetUdpPort(port int) {
 	establishConn()
 }
 
+func AddDefaultLabels(labels map[string]interface{}) {
+	for label, value := range labels {
+		defaultLabels[label] = value
+	}
+}
+
+func RemoveDefaultLabels(labels ...string) {
+	for _, label := range labels {
+		delete(defaultLabels, label)
+	}
+}
+
+func DefaultLabels() map[string]interface{} {
+	labels := map[string]interface{}{
+		"pid": os.Getpid(),
+		"app": AppName(),
+	}
+	for label, value := range defaultLabels {
+		labels[label] = value
+	}
+	return labels
+}
+
+func mergeDefaultLabels(labels map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	for label, value := range labels {
+		result[label] = value
+	}
+	for label, value := range DefaultLabels() {
+		result[label] = value
+	}
+	return result
+}
+
 func AppName() string {
 	if appName != "" {
 		return appName
@@ -66,52 +101,52 @@ func SetAppName(name string) {
 	appName = name
 }
 
-func MarkFull(name, value string, timestamp time.Time, labels map[string]string) {
+func MarkFull(name, value string, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
 		"type":      "mark",
 		"name":      name,
 		"value":     value,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
 func Mark(name, value string) {
-	MarkFull(name, value, time.Now(), make(map[string]string))
+	MarkFull(name, value, time.Now(), make(map[string]interface{}))
 }
 
-func CounterFull(name string, value int, timestamp time.Time, labels map[string]string) {
+func CounterFull(name string, value int, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
 		"type":      "counter",
 		"name":      name,
 		"value":     value,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
 func Counter(name string, value int) {
-	CounterFull(name, value, time.Now(), make(map[string]string))
+	CounterFull(name, value, time.Now(), make(map[string]interface{}))
 }
 
-func GaugeFull(name string, value float64, timestamp time.Time, labels map[string]string) {
+func GaugeFull(name string, value float64, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
 		"type":      "gauge",
 		"name":      name,
 		"value":     value,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
 func Gauge(name string, value float64) {
-	GaugeFull(name, value, time.Now(), make(map[string]string))
+	GaugeFull(name, value, time.Now(), make(map[string]interface{}))
 }
 
-func EventFull(name, subject, body string, attn []string, timestamp time.Time, labels map[string]string) {
+func EventFull(name, subject, body string, attn []string, timestamp time.Time, labels map[string]interface{}) {
 	truncatedSubject := subject
 	if len(subject) > 3072 {
 		truncatedSubject = subject[:3072]
@@ -127,16 +162,16 @@ func EventFull(name, subject, body string, attn []string, timestamp time.Time, l
 		"body":      truncatedBody,
 		"attn":      attn,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
 func Event(name, subject, body string, attn []string) {
-	EventFull(name, subject, body, attn, time.Now(), make(map[string]string))
+	EventFull(name, subject, body, attn, time.Now(), make(map[string]interface{}))
 }
 
-func LogFull(subject string, data interface{}, timestamp time.Time, labels map[string]string) {
+func LogFull(subject string, data interface{}, timestamp time.Time, labels map[string]interface{}) {
 	truncatedSubject := subject
 	if len(subject) > 7168 {
 		truncatedSubject = subject[:7168]
@@ -146,16 +181,16 @@ func LogFull(subject string, data interface{}, timestamp time.Time, labels map[s
 		"subject":   truncatedSubject,
 		"data":      data,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
 func Log(subject string, data interface{}) {
-	LogFull(subject, data, time.Now(), make(map[string]string))
+	LogFull(subject, data, time.Now(), make(map[string]interface{}))
 }
 
-func RegisterProcess(name string, data map[string]interface{}, timestamp time.Time, labels map[string]string) {
+func RegisterProcess(name string, data map[string]interface{}, timestamp time.Time, labels map[string]interface{}) {
 	allData := map[string]interface{}{
 		"name":     name,
 		"language": "go",
@@ -168,28 +203,28 @@ func RegisterProcess(name string, data map[string]interface{}, timestamp time.Ti
 		"type":      "reg_process",
 		"data":      allData,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
-func HeartbeatFull(name string, value, timeout float64, timestamp time.Time, labels map[string]string) {
+func HeartbeatFull(name string, value, timeout float64, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
 		"type":      "hb_process",
 		"name":      name,
 		"value":     value,
 		"timeout":   timeout,
 		"timestamp": convertTime(timestamp),
-		"labels":    labels,
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
 
 func Heartbeat() {
-	HeartbeatFull("application.heartbeat", 0, 0, time.Now(), make(map[string]string))
+	HeartbeatFull("application.heartbeat", 0, 0, time.Now(), make(map[string]interface{}))
 }
 
-func TimeFull(callback func(), name string, timestamp time.Time, labels map[string]string) {
+func TimeFull(callback func(), name string, timestamp time.Time, labels map[string]interface{}) {
 	start := time.Now()
 	callback()
 	end := time.Now()
@@ -197,7 +232,7 @@ func TimeFull(callback func(), name string, timestamp time.Time, labels map[stri
 }
 
 func Time(callback func(), name string) {
-	TimeFull(callback, name, time.Now(), make(map[string]string))
+	TimeFull(callback, name, time.Now(), make(map[string]interface{}))
 }
 
 // Time until the current function returns. Call with defer.
