@@ -8,6 +8,5 @@ A Go client for Hastur.
 * Helper methods
 	* Every
 * Background heartbeat
-* Replace panics with actual error handling
 * Docs
 * Tests

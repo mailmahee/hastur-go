@@ -15,6 +15,7 @@ var (
 	appName       string
 	conn          net.Conn
 	defaultLabels = make(map[string]interface{})
+	recurringSend = false
 )
 
 func init() {
@@ -25,7 +26,7 @@ func establishConn() {
 	var err error
 	conn, err = net.Dial("udp", fmt.Sprintf("%s:%d", UdpAddress, UdpPort))
 	if err != nil {
-		panic("handle this")
+		panic(err)
 	}
 }
 
@@ -33,7 +34,13 @@ func establishConn() {
 func send(message interface{}) {
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		panic("Handle this.")
+		if recurringSend {
+			return
+		}
+		recurringSend = true
+		defer func() { recurringSend = false }()
+		Log(fmt.Sprintf("Error marshalling json message: %s", err.Error()), "")
+		return
 	}
 	conn.Write(bytes)
 }
