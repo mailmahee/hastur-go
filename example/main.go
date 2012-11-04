@@ -6,10 +6,7 @@ import (
 )
 
 func main() {
-	i := 0
-	hastur.Every(hastur.FiveSecs, func() {
-		i++
-		hastur.Counter("foo", i)
-	})
+	hastur.SendProcessHeartbeat = false
+	hastur.Start()
 	time.Sleep(20 * time.Second)
 }

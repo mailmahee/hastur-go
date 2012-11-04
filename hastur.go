@@ -9,18 +9,19 @@ import (
 )
 
 var (
-	Version       = "0.0.1"
-	UdpAddress    = "127.0.0.1"
-	UdpPort       = 8125
-	appName       string
-	conn          net.Conn
-	defaultLabels = make(map[string]interface{})
-	recurringSend = false
+	Version              = "0.0.1"
+	udpAddress           = "127.0.0.1"
+	udpPort              = 8125
+	appName              string
+	conn                 net.Conn
+	defaultLabels        = make(map[string]interface{})
+	recurringSend        = false
+	SendProcessHeartbeat = true
 )
 
 func establishConn() {
 	var err error
-	conn, err = net.Dial("udp", fmt.Sprintf("%s:%d", UdpAddress, UdpPort))
+	conn, err = net.Dial("udp", fmt.Sprintf("%s:%d", udpAddress, udpPort))
 	if err != nil {
 		panic(err)
 	}
@@ -37,9 +38,9 @@ const (
 
 var intervalToDuration = map[Interval]time.Duration{
 	FiveSecs: 5 * time.Second,
-	Minute: time.Minute,
-	Hour: time.Hour,
-	Day: 24 * time.Hour,
+	Minute:   time.Minute,
+	Hour:     time.Hour,
+	Day:      24 * time.Hour,
 }
 
 func Every(interval Interval, callback func()) {
@@ -56,6 +57,14 @@ func Every(interval Interval, callback func()) {
 			}
 		}
 	}()
+}
+
+func Start() {
+	if SendProcessHeartbeat {
+		Every(FiveSecs, func() {
+			Heartbeat("process_heartbeat")
+		})
+	}
 }
 
 func init() {
@@ -78,17 +87,17 @@ func send(message interface{}) {
 }
 
 // Convert time.Time to Hastur's time format (microseconds since epoch)
-func convertTime(t time.Time) int64 {
-	return t.UnixNano() / 1000
-}
+func convertTime(t time.Time) int64 { return t.UnixNano() / 1000 }
 
+func UdpAddress() string { return udpAddress }
 func SetUdpAddress(address string) {
-	UdpAddress = address
+	udpAddress = address
 	establishConn()
 }
 
+func UdpPort() int { return udpPort }
 func SetUdpPort(port int) {
-	UdpPort = port
+	udpPort = port
 	establishConn()
 }
 
@@ -259,8 +268,8 @@ func HeartbeatFull(name string, value, timeout float64, timestamp time.Time, lab
 	send(message)
 }
 
-func Heartbeat() {
-	HeartbeatFull("application.heartbeat", 0, 0, time.Now(), make(map[string]interface{}))
+func Heartbeat(name string) {
+	HeartbeatFull(name, 0, 0, time.Now(), make(map[string]interface{}))
 }
 
 func TimeFull(callback func(), name string, timestamp time.Time, labels map[string]interface{}) {
