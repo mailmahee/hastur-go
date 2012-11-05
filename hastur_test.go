@@ -191,6 +191,24 @@ func (s *HasturSuite) TestRegisterProcess(c *C) {
 	c.Check(data["haz"], Equals, "data")
 }
 
+func (s *HasturSuite) TestInfoProcess(c *C) {
+	hastur.InfoProcess("test.tag", map[string]interface{}{"moar": "data"})
+	m := GetAndVerifySingleMessage(c)
+
+	c.Check(m["type"], Equals, "info_process")
+	c.Check(m["tag"], Equals, "test.tag")
+	c.Check(m["data"], DeepEquals, map[string]interface{}{"moar": "data"})
+}
+
+func (s *HasturSuite) TestInfoAgent(c *C) {
+	hastur.InfoAgent("test.tag", map[string]interface{}{"agent": "data"})
+	m := GetAndVerifySingleMessage(c)
+
+	c.Check(m["type"], Equals, "info_agent")
+	c.Check(m["tag"], Equals, "test.tag")
+	c.Check(m["data"], DeepEquals, map[string]interface{}{"agent": "data"})
+}
+
 func (s *HasturSuite) TestHeartbeat(c *C) {
 	hastur.Heartbeat("test.heartbeat")
 	m := GetAndVerifySingleMessage(c)

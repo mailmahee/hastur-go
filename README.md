@@ -9,7 +9,4 @@ Run the tests with:
 
 ## Todo
 
-* Main methods:
-	* InfoProcess?
-	* InfoAgent?
 * Docs

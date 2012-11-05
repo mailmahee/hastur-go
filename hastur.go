@@ -273,6 +273,36 @@ func RegisterProcess(name string, data map[string]interface{}, timestamp time.Ti
 	send(message)
 }
 
+func InfoProcessFull(tag string, data map[string]interface{}, timestamp time.Time, labels map[string]interface{}) {
+	message := map[string]interface{}{
+		"type": "info_process",
+		"tag": tag,
+		"data": data,
+		"timestamp": convertTime(timestamp),
+		"labels": mergeDefaultLabels(labels),
+	}
+	send(message)
+}
+
+func InfoProcess(tag string, data map[string]interface{}) {
+	InfoProcessFull(tag, data, time.Now(), make(map[string]interface{}))
+}
+
+func InfoAgentFull(tag string, data map[string]interface{}, timestamp time.Time, labels map[string]interface{}) {
+	message := map[string]interface{}{
+		"type": "info_agent",
+		"tag": tag,
+		"data": data,
+		"timestamp": convertTime(timestamp),
+		"labels": mergeDefaultLabels(labels),
+	}
+	send(message)
+}
+
+func InfoAgent(tag string, data map[string]interface{}) {
+	InfoAgentFull(tag, data, time.Now(), make(map[string]interface{}))
+}
+
 func HeartbeatFull(name string, value, timeout float64, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
 		"type":      "hb_process",
