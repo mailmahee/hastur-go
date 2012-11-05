@@ -35,13 +35,13 @@ import (
 
 var (
 	// Version is the current Go Hastur client library version.
-	Version              = "0.0.1"
-	udpAddress           = "127.0.0.1"
-	udpPort              = 8125
-	appName              string
-	conn                 net.Conn
-	defaultLabels        = make(map[string]interface{})
-	recurringSend        = false
+	Version       = "0.0.1"
+	udpAddress    = "127.0.0.1"
+	udpPort       = 8125
+	appName       string
+	conn          net.Conn
+	defaultLabels = make(map[string]interface{})
+	recurringSend = false
 	// SendProcessHearbeat controls whether Start begins a periodic application heartbeat.
 	SendProcessHeartbeat = true
 )
@@ -374,11 +374,11 @@ func RegisterProcess(name string, data map[string]interface{}, timestamp time.Ti
 // InfoProcessFull is the same as InfoProcess but allows for explicit setting of the timestamp and labels.
 func InfoProcessFull(tag string, data map[string]interface{}, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
-		"type": "info_process",
-		"tag": tag,
-		"data": data,
+		"type":      "info_process",
+		"tag":       tag,
+		"data":      data,
 		"timestamp": convertTime(timestamp),
-		"labels": mergeDefaultLabels(labels),
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
@@ -401,15 +401,14 @@ func InfoProcess(tag string, data map[string]interface{}) {
 // InfoAgentFull is the same as InfoAgent but allows for explicit setting of the timestamp and labels.
 func InfoAgentFull(tag string, data map[string]interface{}, timestamp time.Time, labels map[string]interface{}) {
 	message := map[string]interface{}{
-		"type": "info_agent",
-		"tag": tag,
-		"data": data,
+		"type":      "info_agent",
+		"tag":       tag,
+		"data":      data,
 		"timestamp": convertTime(timestamp),
-		"labels": mergeDefaultLabels(labels),
+		"labels":    mergeDefaultLabels(labels),
 	}
 	send(message)
 }
-
 
 // InfoAgent sends back freeform data about the agent or host that Hastur is running on. Sample uses include
 // what libraries or packages are installed and available, or the total installed memory.
