@@ -1,6 +1,13 @@
 A Go client for Hastur.
 
-## TODO
+## Development
+
+Run the tests with:
+
+		$ go get launchpad.net/gocheck
+		$ go test
+
+## Todo
 
 * Main methods:
 	* InfoProcess?
