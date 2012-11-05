@@ -122,7 +122,7 @@ func Every(interval Interval, callback func()) {
 func Start() {
 	if SendProcessHeartbeat {
 		Every(Minute, func() {
-			Heartbeat("process_heartbeat")
+			HeartbeatFull("process_heartbeat", 0, 0, time.Now(), make(map[string]interface{}))
 		})
 	}
 	RegisterProcess(AppName(), make(map[string]interface{}), time.Now(), make(map[string]interface{}))
@@ -436,6 +436,6 @@ func HeartbeatFull(name string, value, timeout float64, timestamp time.Time, lab
 // Heartbeat sends a heartbeat to Hastur. A heartbeat is a periodic message which indicates that a host,
 // application or service is currently running. It is higher priority than a statistic and should not be
 // batched, but is lower priority than an event and does not include an end-to-end acknowledgement.
-func Heartbeat(name string) {
-	HeartbeatFull(name, 0, 0, time.Now(), make(map[string]interface{}))
+func Heartbeat() {
+	HeartbeatFull("application.heartbeat", 0, 0, time.Now(), make(map[string]interface{}))
 }

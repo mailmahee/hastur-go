@@ -210,11 +210,11 @@ func (s *HasturSuite) TestInfoAgent(c *C) {
 }
 
 func (s *HasturSuite) TestHeartbeat(c *C) {
-	hastur.Heartbeat("test.heartbeat")
+	hastur.Heartbeat()
 	m := GetAndVerifySingleMessage(c)
 
 	c.Check(m["type"], Equals, "hb_process")
-	c.Check(m["name"], Equals, "test.heartbeat")
+	c.Check(m["name"], Equals, "application.heartbeat")
 	c.Check(m["value"], Equals, 0.0)
 	c.Check(m["timeout"], Equals, 0.0)
 }
