@@ -2,9 +2,10 @@ A Go client for Hastur. This is an API for publishing (json) Hastur messages via
 
 ## Get the code
 
-    $ go get git.corp.ooyala.com/hastur-go
+Right now code on git.corp.ooyala.com isn't easily `go get`-able, so you'll need to clone
+`ssh://git@git.corp.ooyala.com/hastur-go` to the correct path (`$GOPATH/src/git.corp.ooyala.com/`).
 
-In your project:
+Then in your project:
 
 ``` go
 import "git.corp.ooyala.com/hastur-go"
