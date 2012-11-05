@@ -7,6 +7,7 @@ import (
 	"fmt"
 	. "launchpad.net/gocheck"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"testing"
@@ -22,10 +23,11 @@ var _ = Suite(&HasturSuite{})
 
 var messages [][]byte
 var captureQuit = make(chan bool)
+var testPort int
 
 func StartCapture() {
 	messages = make([][]byte, 0)
-	addr, err := net.ResolveUDPAddr("udp", ":8126")
+	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", testPort))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -54,7 +56,7 @@ func StartCapture() {
 type Message map[string]interface{}
 
 func FinishCapture() []Message {
-	conn, err := net.Dial("udp", "localhost:8126")
+	conn, err := net.Dial("udp", fmt.Sprintf("localhost:%d", testPort))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -73,9 +75,19 @@ func FinishCapture() []Message {
 	return results
 }
 
+func (s *HasturSuite) SetUpSuite(c *C) {
+	// Randomize the port to allow multiple test instances to run simultaneously. Use ports >= 1024 to minimize
+	// the probability of conflict with other services.
+	rand.Seed(time.Now().UnixNano())
+	for testPort < 1024 || testPort == 8125 {
+		testPort = rand.Intn(65536-1024) + 1024
+	}
+}
+
 func (s *HasturSuite) SetUpTest(c *C) {
 	// Use a port for testing that doesn't conflict with the agent
-	hastur.SetUdpPort(8126)
+	fmt.Println(testPort)
+	hastur.SetUdpPort(testPort)
 	hastur.SetAppName("test.app")
 	StartCapture()
 }
