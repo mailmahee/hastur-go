@@ -13,4 +13,3 @@ Run the tests with:
 	* InfoProcess?
 	* InfoAgent?
 * Docs
-* Tests
