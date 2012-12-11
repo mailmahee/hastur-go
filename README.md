@@ -2,18 +2,18 @@ A Go client for Hastur. This is an API for publishing (json) Hastur messages via
 
 ## Get the code
 
-Right now code on git.corp.ooyala.com isn't easily `go get`-able, so you'll need to clone
-`ssh://git@git.corp.ooyala.com/hastur-go` to the correct path (`$GOPATH/src/git.corp.ooyala.com/`).
+    $ go get github.com/ooyala/hastur-go
 
-Then in your project:
+(You may also wish to check in the code under `vendor/` or something instead). Then in your project:
 
 ``` go
-import "git.corp.ooyala.com/hastur-go"
+import "github.com/ooyala/hastur-go"
 ...
 hastur.Counter("my.app.loglines", 1)
 ```
 
-See the top- and method-level documentation for usage instructions.
+See the [top- and method-level documentation](http://go.pkgdoc.org/github.com/ooyala/hastur-go) for usage
+instructions.
 
 ## Development
 
